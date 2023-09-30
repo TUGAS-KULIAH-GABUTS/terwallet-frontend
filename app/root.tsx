@@ -24,7 +24,7 @@ export const links: LinksFunction = () => {
 }
 
 export const meta: MetaFunction = () => {
-  return { title: 'Crud Example' }
+  return { title: 'Monitoring System' }
 }
 
 export let loader: LoaderFunction = async ({

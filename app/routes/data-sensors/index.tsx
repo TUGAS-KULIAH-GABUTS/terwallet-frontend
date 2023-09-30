@@ -55,6 +55,13 @@ export let loader: LoaderFunction = async ({ params, request }) => {
           search: search
         }
       },
+      API: {
+        baseUrl: CONFIG.baseUrlApi,
+        authorization: {
+          username: CONFIG.authorization.username,
+          password: CONFIG.authorization.passsword
+        }
+      },
       session: session,
       isError: false
     }
@@ -94,17 +101,16 @@ export default function Index(): ReactElement {
 
   const navigation = [{ title: 'Daftar', href: '', active: true }]
 
-  const download = async () => {
+  const downloadData = async () => {
     try {
-      const result = await axios.get(
-        `${loader.API.baseUrl}/users/list?pagination=false`,
-        {
-          auth: {
-            username: loader.API.authorization.username,
-            password: loader.API.authorization.password
-          }
+      const result = await axios.get(`${loader.API.baseUrl}/dht-sensors/list`, {
+        auth: {
+          username: loader.API.authorization.username,
+          password: loader.API.authorization.password
         }
-      )
+      })
+
+      console.log(result)
 
       let xlsRows: any[] = []
       await result.data.data.items.map((value: IDhtSensorModel) => {
@@ -157,7 +163,7 @@ export default function Index(): ReactElement {
       title: 'Temperature',
       data: (data: IDhtSensorModel, index: number): ReactElement => (
         <td key={index + 'temperature'} className="md:px-6 md:py-3">
-          {data.dhtSensorTemperature}
+          {data.dhtSensorTemperature}&deg;C
         </td>
       )
     },
@@ -165,7 +171,7 @@ export default function Index(): ReactElement {
       title: 'Humidity',
       data: (data: IDhtSensorModel, index: number): ReactElement => (
         <td key={index + 'humidity'} className="md:px-6 md:py-3">
-          {data.dhtSensorHumidity}
+          {data.dhtSensorHumidity} %
         </td>
       )
     },
@@ -284,7 +290,7 @@ export default function Index(): ReactElement {
 
             <button
               type="button"
-              onClick={download}
+              onClick={downloadData}
               className="bg-transparent hover:bg-teal-500 text-teal-700 font-semibold hover:text-white py-2 px-4 border border-teal-500 hover:border-transparent rounded"
             >
               Export

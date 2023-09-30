@@ -70,29 +70,27 @@ export default function Index() {
         }
       )
 
-      const temperatureList = temperatureData.data.data.map((item: any) => {
+      const temperatureListData = temperatureData.data.data.map((item: any) => {
         return {
           temperature: item.dhtSensorTemperature,
           time: convertTime(item.createdAt)
         }
       }) as ITemperatureType[]
 
-      const humidityList = humidityData.data.data.map((item: any) => {
+      const humidityListData = humidityData.data.data.map((item: any) => {
         return {
           humidity: item.dhtSensorHumidity,
           time: convertTime(item.createdAt)
         }
       }) as IHumidityType[]
 
-      setTemperatureList(temperatureList)
-      setHumidityList(humidityList)
-
-      console.log('_________')
+      setTemperatureList(temperatureListData)
+      setHumidityList(humidityListData)
     }
 
-    const interval = setInterval(getData, 5000)
+    const interval = setInterval(getData, 1000)
     return () => clearInterval(interval)
-  }, [loader?.humidity, loader?.temperature])
+  }, [loader])
 
   if (loader.isError) {
     return (
@@ -117,72 +115,63 @@ export default function Index() {
 
       <div className="flex flex-wrap my-5 gap-5">
         <Card>
-          <p className="font-extrabold text-center">SUHU</p>
+          <p className="font-extrabold text-center">TEMPERATURE</p>
           <div className="flex justify-center h-56 items-center">
             <h1 className="font-extrabold text-4xl text-center">
-              {temperatureList[temperatureList.length - 1]?.temperature}&deg;C
+              {temperatureList[temperatureList.length - 1]?.temperature || 0}&deg;C
             </h1>
           </div>
         </Card>
         <div className="p-5 rounded-lg shadow bg-white">
-          {temperatureList.length > 0 && (
-            <AreaChart
-              width={600}
-              height={300}
-              data={temperatureList}
-              margin={{
-                top: 10,
-                right: 30,
-                left: 0,
-                bottom: 0
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="temperature"
-                stroke="#8884d8"
-                fill="#8884d8"
-              />
-            </AreaChart>
-          )}
+          <AreaChart
+            width={600}
+            height={300}
+            data={temperatureList}
+            margin={{
+              top: 10,
+              right: 30,
+              left: 0,
+              bottom: 0
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis />
+            <Tooltip />
+            <Area type="monotone" dataKey="temperature" stroke="#8884d8" fill="#8884d8" />
+          </AreaChart>
         </div>
       </div>
 
-      {humidityList && (
-        <div className="flex flex-wrap my-5 gap-5">
-          <div className="p-5 rounded-lg shadow bg-white">
-            <AreaChart
-              width={600}
-              height={300}
-              data={humidityList}
-              margin={{
-                top: 10,
-                right: 30,
-                left: 0,
-                bottom: 0
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Area type="monotone" dataKey="humidity" stroke="#8884d8" fill="#8884d8" />
-            </AreaChart>
-          </div>
-          <Card>
-            <p className="font-extrabold text-center">KELEMBAPAN</p>
-            <div className="flex justify-center h-56 items-center">
-              <h1 className="font-extrabold text-4xl text-center">
-                {humidityList[humidityList.length - 1]?.humidity}%
-              </h1>
-            </div>
-          </Card>
+      <div className="flex flex-wrap my-5 gap-5">
+        <div className="p-5 rounded-lg shadow bg-white">
+          <AreaChart
+            width={600}
+            height={300}
+            data={humidityList}
+            margin={{
+              top: 10,
+              right: 30,
+              left: 0,
+              bottom: 0
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis />
+            <Tooltip />
+            <Area type="monotone" dataKey="humidity" stroke="#8884d8" fill="#8884d8" />
+          </AreaChart>
         </div>
-      )}
+        <Card>
+          <p className="font-extrabold text-center">HUMIDITY</p>
+          <div className="flex justify-center h-56 items-center">
+            <h1 className="font-extrabold text-4xl text-center">
+              {humidityList[humidityList.length - 1]?.humidity || 0}%
+            </h1>
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

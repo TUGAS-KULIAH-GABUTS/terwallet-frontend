@@ -79,7 +79,7 @@ export default function DateTimePickerStyle({
                   </button>
                   <button
                     className="bg-teal-500 mx-2 text-white font-semibold py-1 px-5 hover:bg-teal-400 rounded"
-                    type="button"
+                    type="submit"
                     onClick={handleOnSave}
                   >
                     Save

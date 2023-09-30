@@ -33,6 +33,7 @@ export let loader: LoaderFunction = async ({ params, request }) => {
   let search = url.searchParams.get('search') || ''
   let size = url.searchParams.get('size') || 10
   let page = url.searchParams.get('page') || 0
+  let range = url.searchParams.get('range') || 'all'
 
   try {
     const result = await API.getTableData({
@@ -42,7 +43,8 @@ export let loader: LoaderFunction = async ({ params, request }) => {
       page: +page || 0,
       size: +size || 10,
       filters: {
-        search: search || ''
+        search: search || '',
+        range: range
       }
     })
     return {
@@ -52,7 +54,8 @@ export let loader: LoaderFunction = async ({ params, request }) => {
         page: page,
         size: size,
         filter: {
-          search: search
+          search: search,
+          range: range
         }
       },
       API: {
@@ -144,7 +147,8 @@ export default function Index(): ReactElement {
 
       XLSX.utils.book_append_sheet(wb, ws, ws_name)
       XLSX.writeFile(wb, filename)
-    } catch (error) {
+    } catch (error: any) {
+      alert(error.message)
       console.log(error)
     }
   }
@@ -295,6 +299,19 @@ export default function Index(): ReactElement {
             >
               Export
             </button>
+
+            <select
+              name="range"
+              defaultValue={loader?.table?.filter.range}
+              className="block w-32 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+            >
+              <option value="all">Semua</option>
+              <option value="today">Hari ini</option>
+              <option value="yesterday">Kemarin</option>
+              <option value="week">Minggu ini</option>
+              <option value="month">Bulan ini</option>
+              <option value="year">Tahun ini</option>
+            </select>
           </div>
           <div className="w-full mb-2 md:w-1/5">
             <input

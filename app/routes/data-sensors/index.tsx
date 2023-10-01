@@ -35,6 +35,9 @@ export let loader: LoaderFunction = async ({ params, request }) => {
   let page = url.searchParams.get('page') || 0
   let range = url.searchParams.get('range') || 'all'
 
+  let start = url.searchParams.get('start') || ''
+  let end = url.searchParams.get('end') || ''
+
   try {
     const result = await API.getTableData({
       session: session,
@@ -44,7 +47,9 @@ export let loader: LoaderFunction = async ({ params, request }) => {
       size: +size || 10,
       filters: {
         search: search || '',
-        range: range
+        start,
+        end,
+        range
       }
     })
     return {
@@ -55,7 +60,9 @@ export let loader: LoaderFunction = async ({ params, request }) => {
         size: size,
         filter: {
           search: search,
-          range: range
+          start,
+          end,
+          range
         }
       },
       API: {
@@ -83,6 +90,18 @@ export default function Index(): ReactElement {
   const [modalDelete, setModalDelete] = useState(false)
   const [modalData, setModalData] = useState<IDhtSensorModel>()
   const actionData = useActionData()
+
+  const [start, setStart] = useState<string>('')
+  const [end, setEnd] = useState<string>('')
+  const [openModalDateTimePicker, setOpenModalDateTimePicker] = useState(false)
+
+  console.log(start)
+  console.log(end)
+
+  const convertTimeToIso = (time: any) => {
+    const date = new Date(time)
+    return date.toISOString()
+  }
 
   useEffect(() => {
     setMobileActionDropdown(null)
@@ -312,6 +331,13 @@ export default function Index(): ReactElement {
               <option value="month">Bulan ini</option>
               <option value="year">Tahun ini</option>
             </select>
+            <button
+              className="bg-teal-500 text-white active:bg-teal-400 font-bold text-sm px-2 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+              type="button"
+              onClick={() => setOpenModalDateTimePicker(true)}
+            >
+              Filter By Date
+            </button>
           </div>
           <div className="w-full mb-2 md:w-1/5">
             <input
@@ -326,6 +352,70 @@ export default function Index(): ReactElement {
       </Form>
 
       <Table header={header} table={loader.table} />
+
+      <Modal
+        open={openModalDateTimePicker}
+        setOpen={() => {
+          setOpenModalDateTimePicker(false)
+        }}
+      >
+        <Form
+          method="get"
+          onSubmit={(e: any) => {
+            submit(e.currentTarget, { action: `${loader?.table?.link}` })
+            setOpenModalDateTimePicker(false)
+            setStart('')
+            setEnd('')
+          }}
+        >
+          <input className="hidden" name="start" defaultValue={start} />
+          <input className="hidden" name="end" defaultValue={end} />
+          <div className="flex items-center justify-between gap-5">
+            <div
+              className="datepicker relative form-floating xl:w-96"
+              data-mdb-toggle-button="false"
+            >
+              <p className="text-center text-gray-500">Start</p>
+              <input
+                type="date"
+                className="form-control block px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                placeholder="Select a date"
+                onChange={(e) => setStart(convertTimeToIso(e.target.value))}
+              />
+            </div>
+            <div
+              className="datepicker relative form-floating xl:w-96"
+              data-mdb-toggle-button="false"
+            >
+              <p className="text-center text-gray-500">End</p>
+              <input
+                type="date"
+                className="form-control block px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                placeholder="Select a date"
+                onChange={(e) => setEnd(convertTimeToIso(e.target.value))}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-5 md:flex-row mt-4">
+            <button
+              type="button"
+              className="inline-flex ml-0 md:ml-2 justify-center w-full rounded-md border border-gray shadow-sm px-4 py-2 bg-white text-base font-medium text-gray hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray sm:text-sm"
+              onClick={() => {
+                setOpenModalDateTimePicker(false)
+              }}
+            >
+              cancel
+            </button>
+            <button
+              type="submit"
+              className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:text-sm"
+            >
+              save
+            </button>
+          </div>
+        </Form>
+      </Modal>
 
       <Modal
         open={modalDelete}
@@ -362,3 +452,93 @@ export default function Index(): ReactElement {
     </div>
   )
 }
+
+// interface DateTimePickerProps {
+//   title: string
+//   start: any
+//   end: any
+//   save: any
+// }
+
+// function DateTimePickerStyle({ title, start, end, save }: DateTimePickerProps) {
+//   const [showModal, setShowModal] = useState(false)
+
+//   const openModal = () => {
+//     setShowModal(!showModal)
+//   }
+
+//   const handleOnSave = () => {
+//     save()
+//     setShowModal(false)
+//   }
+
+//   return (
+//     <>
+//       <button
+//         className="bg-teal-500 text-white active:bg-teal-400 font-bold text-sm px-2 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+//         type="button"
+//         onClick={openModal}
+//       >
+//         {title}
+//       </button>
+//       {showModal ? (
+//         <>
+//           <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+//             <div className="relative mt-10 mx-auto max-w-2xl">
+//               {/*content*/}
+//               <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-96 h-56 bg-white outline-none focus:outline-none">
+//                 {/*body*/}
+//                 <div className="relative p-6 flex-auto">
+//                   <div className="flex items-center justify-between">
+//                     <div
+//                       className="datepicker relative form-floating xl:w-96"
+//                       data-mdb-toggle-button="false"
+//                     >
+//                       <p className="text-center text-gray-500">Start</p>
+//                       <input
+//                         type="date"
+//                         className="form-control block px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+//                         placeholder="Select a date"
+//                         onChange={(e) => start(e.target.value)}
+//                       />
+//                     </div>
+//                     <div
+//                       className="datepicker relative form-floating xl:w-96"
+//                       data-mdb-toggle-button="false"
+//                     >
+//                       <p className="text-center text-gray-500">End</p>
+//                       <input
+//                         type="date"
+//                         className="form-control block px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+//                         placeholder="Select a date"
+//                         onChange={(e) => end(e.target.value)}
+//                       />
+//                     </div>
+//                   </div>
+//                 </div>
+//                 {/*footer*/}
+//                 <div className="flex items-center justify-end p-2 border-t border-solid border-slate-200 rounded-b">
+//                   <button
+//                     className="bg-transparent mx-2 hover:bg-teal-500 text-teal-700 font-semibold hover:text-white py-1 px-5 border border-teal-500 hover:border-transparent rounded"
+//                     type="button"
+//                     onClick={openModal}
+//                   >
+//                     Close
+//                   </button>
+//                   <button
+//                     className="bg-teal-500 mx-2 text-white font-semibold py-1 px-5 hover:bg-teal-400 rounded"
+//                     type="submit"
+//                     onClick={handleOnSave}
+//                   >
+//                     Save
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//           <div className="opacity-5 fixed inset-0 z-40 bg-black"></div>
+//         </>
+//       ) : null}
+//     </>
+//   )
+// }

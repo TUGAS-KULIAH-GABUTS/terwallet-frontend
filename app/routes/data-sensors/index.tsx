@@ -156,7 +156,7 @@ export default function Index(): ReactElement {
       })
 
       /* File Name */
-      let filename = `Data Pengguna ${moment().format('DD-MM-YYYY')}.xlsx`
+      let filename = `Data Sensor ${moment().format('DD-MM-YYYY')}.xlsx`
 
       /* Sheet Name */
       let ws_name = 'Sheet1'
@@ -411,7 +411,7 @@ export default function Index(): ReactElement {
               type="submit"
               className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:text-sm"
             >
-              save
+              search
             </button>
           </div>
         </Form>

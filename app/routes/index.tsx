@@ -84,6 +84,9 @@ export default function Index() {
         }
       }) as IHumidityType[]
 
+      temperatureListData.reverse()
+      humidityListData.reverse()
+
       setTemperatureList(temperatureListData)
       setHumidityList(humidityListData)
     }

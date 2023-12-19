@@ -4,16 +4,51 @@ import { redirect } from '@remix-run/router'
 import { Breadcrumb } from '~/components/breadcrumb'
 import { checkSession } from '~/services/session'
 import { CONFIG } from '~/config'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
-import { convertTime } from '~/utilities/convertTime'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { PieChart, Pie, Cell } from 'recharts'
+
+import { API } from '~/services/api'
+import { convertNumberToCurrency } from '~/utilities/convertNumberToCurrency'
+
+const data = [
+  { name: 'Group A', value: 400 },
+  { name: 'Group B', value: 300 }
+]
+
+const COLORS = ['#0088FE', '#00C49F']
+
+const RADIAN = Math.PI / 180
+const renderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent
+}: any) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central"
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  )
+}
 
 export let loader: LoaderFunction = async ({ params, request }) => {
   const session: any = await checkSession(request)
   if (!session) return redirect('/login')
+  const statistic = await API.get(session, CONFIG.baseUrlApi + `/statistic`)
   try {
     return {
+      statistic,
       API: {
         baseUrl: CONFIG.baseUrlApi,
         authorization: {
@@ -30,70 +65,8 @@ export let loader: LoaderFunction = async ({ params, request }) => {
   }
 }
 
-interface ITemperatureType {
-  temperature: number
-  time: string
-}
-
-interface IHumidityType {
-  humidity: number
-  time: string
-}
-
 export default function Index() {
   const loader = useLoaderData()
-
-  const [temperatureList, setTemperatureList] = useState<ITemperatureType[]>([])
-  const [humidityList, setHumidityList] = useState<IHumidityType[]>([])
-
-  console.log(loader)
-
-  useEffect(() => {
-    const getData = async () => {
-      const temperatureData = await axios.get(
-        `${loader.API.baseUrl}/dht-sensors/statistic/temperature`,
-        {
-          auth: {
-            username: loader.API.authorization.username,
-            password: loader.API.authorization.password
-          }
-        }
-      )
-
-      const humidityData = await axios.get(
-        `${loader.API.baseUrl}/dht-sensors/statistic/humidity`,
-        {
-          auth: {
-            username: loader.API.authorization.username,
-            password: loader.API.authorization.password
-          }
-        }
-      )
-
-      const temperatureListData = temperatureData.data.data.map((item: any) => {
-        return {
-          temperature: item.dhtSensorTemperature,
-          time: convertTime(item.createdAt)
-        }
-      }) as ITemperatureType[]
-
-      const humidityListData = humidityData.data.data.map((item: any) => {
-        return {
-          humidity: item.dhtSensorHumidity,
-          time: convertTime(item.createdAt)
-        }
-      }) as IHumidityType[]
-
-      temperatureListData.reverse()
-      humidityListData.reverse()
-
-      setTemperatureList(temperatureListData)
-      setHumidityList(humidityListData)
-    }
-
-    const interval = setInterval(getData, 1000)
-    return () => clearInterval(interval)
-  }, [loader])
 
   if (loader.isError) {
     return (
@@ -118,62 +91,39 @@ export default function Index() {
 
       <div className="flex flex-wrap my-5 gap-5">
         <Card>
-          <p className="font-extrabold text-center">TEMPERATURE</p>
+          <p className="font-extrabold text-center">Saldo</p>
           <div className="flex justify-center h-56 items-center">
             <h1 className="font-extrabold text-4xl text-center">
-              {temperatureList[temperatureList.length - 1]?.temperature || 0}&deg;C
+              Rp{convertNumberToCurrency(loader?.statistic.statisticSaldo)}
             </h1>
           </div>
         </Card>
         <div className="p-5 rounded-lg shadow bg-white">
-          <AreaChart
-            width={600}
-            height={300}
-            data={temperatureList}
-            margin={{
-              top: 10,
-              right: 30,
-              left: 0,
-              bottom: 0
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
-            <Tooltip />
-            <Area type="monotone" dataKey="temperature" stroke="#8884d8" fill="#8884d8" />
-          </AreaChart>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap my-5 gap-5">
-        <div className="p-5 rounded-lg shadow bg-white">
-          <AreaChart
-            width={600}
-            height={300}
-            data={humidityList}
-            margin={{
-              top: 10,
-              right: 30,
-              left: 0,
-              bottom: 0
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
-            <Tooltip />
-            <Area type="monotone" dataKey="humidity" stroke="#8884d8" fill="#8884d8" />
-          </AreaChart>
-        </div>
-        <Card>
-          <p className="font-extrabold text-center">HUMIDITY</p>
-          <div className="flex justify-center h-56 items-center">
-            <h1 className="font-extrabold text-4xl text-center">
-              {humidityList[humidityList.length - 1]?.humidity || 0}%
-            </h1>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <p>income</p>
+              <div className="p-2 w-16" style={{ backgroundColor: '#0088FE' }}></div>
+            </div>
+            <div className="flex gap-2">
+              <p>expense</p>
+              <div className="p-2 w-16" style={{ backgroundColor: '#00C49F' }}></div>
+            </div>
           </div>
-        </Card>
+          <PieChart width={400} height={400}>
+            <Pie
+              data={data}
+              labelLine={false}
+              label={renderCustomizedLabel}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </div>
       </div>
     </div>
   )

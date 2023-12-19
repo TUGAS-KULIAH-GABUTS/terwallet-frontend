@@ -4,7 +4,9 @@ import {
   XIcon,
   UserIcon,
   UserGroupIcon,
-  DatabaseIcon
+  DatabaseIcon,
+  BackspaceIcon,
+  DocumentReportIcon
 } from '@heroicons/react/outline'
 import { BsPerson } from 'react-icons/bs'
 import { Fragment, useState } from 'react'
@@ -29,22 +31,23 @@ export default function Layout({
 
   const dashboard = { name: 'Dashboard', icon: HomeIcon, href: '/' }
 
-  const crudExampleMenu = {
-    name: 'Data Sensor',
+  const incomeMenu = {
+    name: 'Incomes',
     icon: DatabaseIcon,
-    href: 'data-sensors?size=10'
+    href: 'incomes?size=10'
   }
 
-  // const waBlasMenu = {
-  // 	name: "Wa Blas",
-  // 	icon: BsWhatsapp,
-  // 	href: "wa-blas/?size=10",
-  // 	children: [
-  // 		{ name: "broadcast", href: "wa-blas/broadcast" },
-  // 		{ name: "history", href: "wa-blas/history" },
-  // 		{ name: "pengaturan", href: "wa-blas/setting" },
-  // 	],
-  // };
+  const expenseMenu = {
+    name: 'Expenses',
+    icon: BackspaceIcon,
+    href: 'expenses?size=10'
+  }
+
+  const reportMenu = {
+    name: 'Reports',
+    icon: DocumentReportIcon,
+    href: 'reports?size=10'
+  }
 
   const myProfile = {
     name: 'My Profile',
@@ -54,7 +57,7 @@ export default function Layout({
 
   const admin = { name: 'Admin', icon: UserGroupIcon, href: 'admin' }
 
-  const NAVIGATIONS_LIST = [dashboard, crudExampleMenu]
+  const NAVIGATIONS_LIST = [dashboard, incomeMenu, expenseMenu, reportMenu]
 
   if (session?.adminRole === 'superAdmin') {
     NAVIGATIONS_LIST.push(admin)
@@ -182,9 +185,7 @@ export default function Layout({
           </button>
 
           <h1 className="text-md text-gray-700">
-            <span className="font-extrabold text-xl text-teal-500">
-              Monitoring System
-            </span>
+            <span className="font-extrabold text-xl text-teal-500">Terwallet</span>
           </h1>
         </div>
         <div className="flex-1 px-2 flex flex-row-reverse">
@@ -265,9 +266,7 @@ export default function Layout({
             <div className="mt-5 flex-1 h-0 overflow-y-auto scrollbar-hide">
               <div className="flex flex-row justify-between mx-5">
                 <h1 className="text-md text-gray-700">
-                  <span className="font-extrabold text-xl text-teal-500">
-                    Monitoring System
-                  </span>
+                  <span className="font-extrabold text-xl text-teal-500">Terwallet</span>
                 </h1>
                 <button
                   type="button"
@@ -294,9 +293,7 @@ export default function Layout({
         >
           <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
             <h1 className="text-md text-gray-700">
-              <span className="font-extrabold text-xl text-teal-500">
-                Monitoring System
-              </span>
+              <span className="font-extrabold text-xl text-teal-500">Terwallet</span>
             </h1>
             <div className="mt-5 flex-1 flex flex-col">
               {/* <h1 className="font-extrabold text-md text-md text-gray-500 my-3">
